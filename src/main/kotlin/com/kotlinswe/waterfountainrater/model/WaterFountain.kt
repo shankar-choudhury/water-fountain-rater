@@ -26,11 +26,11 @@ data class WaterFountain(
     val reports: MutableList<WaterFountainReport> = mutableListOf()
 ) {
     enum class FountainType {
-        UPPER, LOWER, BOTTLE_FILLER
+        UPPER, LOWER, BOTTLE_FILLER, NONE
     }
 
     enum class FountainStatus {
-        WORKING, BROKEN, UNDER_REPAIR, OUT_OF_ORDER
+        WORKING, BROKEN, UNDER_REPAIR, OUT_OF_ORDER, NONE
     }
 
     @Id

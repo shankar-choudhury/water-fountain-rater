@@ -143,25 +143,32 @@ class CliRunner(
         }
 
         try {
-            val buildings = searchService.findBuildingsNear(
-                latitude = parts[0].toDouble(),
-                longitude = parts[1].toDouble(),
-                radius = 100.0
-            )
+            val latitude = parts[0].toDouble()
+            val longitude = parts[1].toDouble()
+            val radius = 100.0
+
+            // Step 1: Fetch buildings within a rough bounding box (larger radius)
+            val buildings = searchService.findBuildingsNear(latitude, longitude, radius * 1.1) // Expanding radius a bit to cover edge cases
 
             if (buildings.isEmpty()) {
-                println("No buildings found within 100m.")
+                println("No buildings found within $radius m.")
                 return
             }
 
-            println("\n📍 Nearby Buildings (within 100m):")
-            buildings.forEach { building ->
-                val distance = DistanceCalculator.calculate(
-                    parts[0].toDouble(),
-                    parts[1].toDouble(),
-                    building.latitude,
-                    building.longitude
-                )
+            // Step 2: Filter buildings using the Haversine formula to refine the result
+            val nearbyBuildings = buildings.filter { building ->
+                val distance = DistanceCalculator.calculate(latitude, longitude, building.latitude, building.longitude)
+                distance <= radius
+            }
+
+            if (nearbyBuildings.isEmpty()) {
+                println("No buildings found within $radius m.")
+                return
+            }
+
+            println("\n📍 Nearby Buildings (within $radius m):")
+            nearbyBuildings.forEach { building ->
+                val distance = DistanceCalculator.calculate(latitude, longitude, building.latitude, building.longitude)
                 println("  🏢 ${building.name} (${"%.2f".format(distance)}m away) - ID: ${building.id}")
             }
         } catch (e: Exception) {

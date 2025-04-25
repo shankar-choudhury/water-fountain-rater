@@ -5,6 +5,7 @@ import com.kotlinswe.waterfountainrater.model.Building
 import com.kotlinswe.waterfountainrater.model.WaterStation
 import com.kotlinswe.waterfountainrater.repository.BuildingRepository
 import com.kotlinswe.waterfountainrater.repository.WaterStationRepository
+import com.kotlinswe.waterfountainrater.util.DistanceCalculator
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
@@ -26,12 +27,26 @@ class SearchService(
         latitude: Double,
         longitude: Double,
         radius: Double
-    ): List<BuildingSearchResponseDto> {
-        return buildingRepository
-            .findByLocation(latitude, longitude, radius)
+    ): List<BuildingSearchResponseDto> =
+        buildingRepository.findByLocation(
+            latitude = latitude,
+            longitude = longitude,
+            radius = radius * 1.1 // Expand radius a bit to cover edge cases
+        )
+            .asSequence() // Convert to sequence for more efficient filtering
+            .filter { building -> isWithinRadius(latitude, longitude, building, radius) }
             .map(BuildingSearchResponseDto::from)
-    }
+            .toList()
 
+    private fun isWithinRadius(
+        latitude: Double,
+        longitude: Double,
+        building: Building,
+        radius: Double
+    ): Boolean {
+        val distance = DistanceCalculator.calculate(latitude, longitude, building.latitude, building.longitude)
+        return distance <= radius
+    }
 
     suspend fun getStationsForBuilding(buildingId: Long): List<WaterStation> = stationRepository.findByBuildingId(buildingId)
 }
