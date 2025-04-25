@@ -7,10 +7,6 @@ import org.springframework.data.repository.query.Param
 import java.util.*
 
 interface BuildingRepository : JpaRepository<Building, Long> {
-    override fun findAll(): List<Building>
-    override fun findById(id: Long): Optional<Building>
-    fun save(building: Building): Building
-
     @Query("SELECT b FROM Building b WHERE " +
             "ABS(b.latitude - :lat) <= :radius AND ABS(b.longitude - :lon) <= :radius")
     fun findByLocation(
