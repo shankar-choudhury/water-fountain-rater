@@ -10,17 +10,4 @@ data class WaterFountainReviewDto(
     val ambience: Double,
     val usability: Double,
     val review: String
-) {
-    companion object {
-        fun from(entity: WaterFountainReview): WaterFountainReviewDto =
-            WaterFountainReviewDto(
-                fountainId = entity.waterFountain.id,
-                taste = entity.tasteRating,
-                flow = entity.flowRating,
-                temperature = entity.temperatureRating,
-                ambience = entity.ambienceRating,
-                usability = entity.usabilityRating,
-                review = entity.review
-            )
-    }
-}
+)

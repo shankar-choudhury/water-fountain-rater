@@ -1,6 +1,6 @@
 package com.kotlinswe.waterfountainrater.controller
 
-import com.kotlinswe.waterfountainrater.dto.building.BuildingSearchRequestDto
+import com.kotlinswe.waterfountainrater.dto.building.BuildingLocationRequestDto
 import com.kotlinswe.waterfountainrater.dto.building.BuildingSearchResponseDto
 import com.kotlinswe.waterfountainrater.service.SearchService
 import org.springframework.http.ResponseEntity
@@ -17,7 +17,7 @@ class SearchController(
 
     @PostMapping("/buildings")
     suspend fun closestFountainsByBuildings(
-        @RequestBody request: BuildingSearchRequestDto
+        @RequestBody request: BuildingLocationRequestDto
     ): ResponseEntity<List<BuildingSearchResponseDto>> {
         val response = searchService.findNearbyBuildingsWithFountains(
             latitude = request.latitude,

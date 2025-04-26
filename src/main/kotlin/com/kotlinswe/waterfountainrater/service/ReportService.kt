@@ -5,10 +5,12 @@ import com.kotlinswe.waterfountainrater.model.WaterFountain
 import com.kotlinswe.waterfountainrater.model.WaterFountainReport
 import com.kotlinswe.waterfountainrater.repository.WaterFountainReportRepository
 import com.kotlinswe.waterfountainrater.repository.WaterFountainRepository
+import com.kotlinswe.waterfountainrater.dto.DtoMappers.toDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+
 
 @Service
 class ReportService(
@@ -31,12 +33,14 @@ class ReportService(
             reportContents = reportContents
         )
 
-        ReportResponseDto.from(reportRepository.save(report))
+        toDto(reportRepository.save(report))
     }
 
     suspend fun getAllReports(): List<ReportResponseDto> =
-        reportRepository.findAll().map { ReportResponseDto.from(it) }
+        reportRepository.findAll()
+            .map { toDto(it) }
 
     suspend fun getReportsForFountain(fountainId: Long): List<ReportResponseDto> =
-        reportRepository.findAllByWaterFountainId(fountainId).map { ReportResponseDto.from(it) }
+        reportRepository.findAllByWaterFountainId(fountainId)
+            .map { toDto(it) }
 }

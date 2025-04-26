@@ -7,13 +7,4 @@ data class WaterFountainDto(
     val type: WaterFountain.FountainType,
     val status: WaterFountain.FountainStatus,
     val overallRating: Double
-) {
-    companion object {
-        fun from(entity: WaterFountain) = WaterFountainDto(
-            id = entity.id,
-            type = entity.type,
-            status = entity.status,
-            overallRating = entity.overallRating
-        )
-    }
-}
+)

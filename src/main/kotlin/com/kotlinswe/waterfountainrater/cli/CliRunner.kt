@@ -33,9 +33,9 @@ class CliRunner(
                     when (command.lowercase()) {
                         "exit" -> break
                         "help" -> printHelp()
-                        "list" -> buildingService.listBuildings()
-                        "stations" -> stationService.listStations()
-                        "fountains" -> fountainService.listFountains()
+                        "list" -> buildingService.listAll()
+                        "stations" -> stationService.listAll()
+                        "fountains" -> fountainService.listAll()
                         "rate" -> rateFountain(args)
                         "top" -> showTopRated(args)
                         "near" -> findNearby(args)

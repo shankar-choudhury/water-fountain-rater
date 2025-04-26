@@ -6,6 +6,7 @@ import com.kotlinswe.waterfountainrater.model.WaterStation
 import com.kotlinswe.waterfountainrater.repository.BuildingRepository
 import com.kotlinswe.waterfountainrater.repository.WaterStationRepository
 import com.kotlinswe.waterfountainrater.util.DistanceCalculator
+import com.kotlinswe.waterfountainrater.dto.DtoMappers.toDto
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
@@ -33,9 +34,9 @@ class SearchService(
             longitude = longitude,
             radius = radius * 1.1 // Expand radius a bit to cover edge cases
         )
-            .asSequence() // Convert to sequence for more efficient filtering
+            .asSequence()
             .filter { building -> isWithinRadius(latitude, longitude, building, radius) }
-            .map(BuildingSearchResponseDto::from)
+            .map { toDto(it) }
             .toList()
 
     private fun isWithinRadius(
