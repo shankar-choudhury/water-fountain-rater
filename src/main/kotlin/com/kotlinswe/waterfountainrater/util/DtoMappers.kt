@@ -1,4 +1,4 @@
-package com.kotlinswe.waterfountainrater.dto
+package com.kotlinswe.waterfountainrater.util
 
 import com.kotlinswe.waterfountainrater.dto.building.BuildingSearchResponseDto
 import com.kotlinswe.waterfountainrater.dto.report.ReportResponseDto
@@ -14,7 +14,8 @@ object DtoMappers {
             id = entity.id,
             floor = entity.floor,
             description = entity.description,
-            fountains = entity.fountains.map(::toDto)
+            buildingId = entity.building.id,  // Map building ID
+            fountains = entity.fountains.map(DtoMappers::toDto)
         )
 
     fun toDto(entity: WaterFountain): WaterFountainDto =
@@ -22,7 +23,8 @@ object DtoMappers {
             id = entity.id,
             type = entity.type,
             status = entity.status,
-            overallRating = entity.overallRating
+            overallRating = entity.overallRating,
+            stationId = entity.station.id  // Map station ID
         )
 
     fun toDto(entity: Building): BuildingSearchResponseDto =
@@ -31,7 +33,7 @@ object DtoMappers {
             name = entity.name,
             latitude = entity.latitude,
             longitude = entity.longitude,
-            waterStations = entity.waterStations.map(::toDto)
+            waterStations = entity.waterStations.map(DtoMappers::toDto)
         )
 
     fun toDto(report: WaterFountainReport): ReportResponseDto =
@@ -58,6 +60,7 @@ object DtoMappers {
         id = 0,
         floor = 0,
         description = "Station not found",
+        buildingId = -1,
         fountains = emptyList()
     )
 
@@ -65,6 +68,7 @@ object DtoMappers {
         id = 0,
         type = WaterFountain.FountainType.NONE,
         status = WaterFountain.FountainStatus.NONE,
+        stationId = -1,
         overallRating = -1.0
     )
 

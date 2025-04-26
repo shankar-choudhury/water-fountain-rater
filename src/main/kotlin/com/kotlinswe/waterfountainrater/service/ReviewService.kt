@@ -4,6 +4,7 @@ import com.kotlinswe.waterfountainrater.dto.review.WaterFountainReviewDto
 import com.kotlinswe.waterfountainrater.repository.*
 import com.kotlinswe.waterfountainrater.model.WaterFountain
 import com.kotlinswe.waterfountainrater.model.WaterFountainReview
+import com.kotlinswe.waterfountainrater.util.DtoMappers.toDto
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -11,7 +12,8 @@ import org.springframework.stereotype.Service
 @Service
 class ReviewService(
     private val fountainRepository: WaterFountainRepository,
-    private val reviewRepository: WaterFountainReviewRepository
+    private val reviewRepository: WaterFountainReviewRepository,
+    private val reportRepository: WaterFountainReportRepository
 ) {
     @Transactional
     suspend fun addReview(reviewDto: WaterFountainReviewDto
@@ -32,8 +34,34 @@ class ReviewService(
         return reviewRepository.save(review)
     }
 
+    suspend fun getStats(): Map<String, Any?> {
+        val totalFountains = fountainRepository.count()
+        val totalReviews = reviewRepository.count()
+
+        return mapOf(
+            "totalFountains" to totalFountains,
+            "totalReviews" to totalReviews,
+            "brokenFountains" to reportRepository.countByStatus(WaterFountain.FountainStatus.BROKEN),
+            "fountainsWithBrokenReports" to reportRepository.countFountainsWithBrokenReports(),
+            "topRatedFountain" to fountainRepository.findTopRated(PageRequest.of(0, 1))
+                .content.firstOrNull()?.let { toDto(it) },
+            "worstRatedFountain" to fountainRepository.findWorstRated(PageRequest.of(0, 1))
+                .content.firstOrNull()?.let { toDto(it) },
+            "avgReviewsPerFountain" to if (totalFountains > 0) totalReviews.toDouble() / totalFountains else 0.0,
+            "fountainsWithoutReviews" to fountainRepository.count() - reviewRepository.countDistinctFountainsWithReviews()
+        )
+    }
+
     suspend fun getTopRatedFountains(limit: Int = 10): List<WaterFountain> =
         fountainRepository.findTopRated(PageRequest.of(0, limit)).content
+
+    suspend fun getFountainRatingStats(fountainId: Long): Map<String, Any> {
+        return mapOf(
+            "totalReviews" to reviewRepository.countByWaterFountainId(fountainId),
+            "averageRating" to (reviewRepository.averageRatingForFountain(fountainId) ?: 0.0),
+            "reports" to reportRepository.countByWaterFountainId(fountainId)
+        )
+    }
 
     suspend fun getReviews(fountainId: Long): List<WaterFountainReview> =
         reviewRepository.findAllByWaterFountainId(fountainId)

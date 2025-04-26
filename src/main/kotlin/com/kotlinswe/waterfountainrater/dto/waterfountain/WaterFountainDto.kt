@@ -6,5 +6,6 @@ data class WaterFountainDto(
     val id: Long,
     val type: WaterFountain.FountainType,
     val status: WaterFountain.FountainStatus,
-    val overallRating: Double
+    val overallRating: Double,
+    val stationId: Long
 )

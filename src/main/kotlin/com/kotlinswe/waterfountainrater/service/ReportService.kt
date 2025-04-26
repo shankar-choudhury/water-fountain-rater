@@ -5,7 +5,7 @@ import com.kotlinswe.waterfountainrater.model.WaterFountain
 import com.kotlinswe.waterfountainrater.model.WaterFountainReport
 import com.kotlinswe.waterfountainrater.repository.WaterFountainReportRepository
 import com.kotlinswe.waterfountainrater.repository.WaterFountainRepository
-import com.kotlinswe.waterfountainrater.dto.DtoMappers.toDto
+import com.kotlinswe.waterfountainrater.util.DtoMappers.toDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
