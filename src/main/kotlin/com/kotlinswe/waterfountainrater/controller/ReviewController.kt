@@ -17,14 +17,14 @@ class ReviewController(
     @PostMapping("/{add-review}")
     suspend fun addReview(
         @RequestBody reviewDto: WaterFountainReviewDto
-    ): ResponseEntity<WaterFountainReview> {
-        val review = reviewService.addReview(reviewDto)
-        return ResponseEntity.status(HttpStatus.CREATED).body(review)
+    ): ResponseEntity<String> {
+        reviewService.addReview(reviewDto)
+        return ResponseEntity.ok("Review of water fountain " + reviewDto.fountainId + " added")
     }
 
     @GetMapping("/{fountainId}")
-    suspend fun getReviews(@PathVariable fountainId: Long): List<WaterFountainReview> =
-        reviewService.getReviewsByWaterFountain(fountainId)
+    suspend fun getReviews(@PathVariable fountainId: Long): List<WaterFountainReviewDto> =
+        reviewService.getReviewsByWaterFountainCt(fountainId)
 
     @GetMapping("/top-rated/{topX}")
     suspend fun getTopRated(@PathVariable topX: Int): List<WaterFountainDto> =

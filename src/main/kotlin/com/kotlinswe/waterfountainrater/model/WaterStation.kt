@@ -1,5 +1,6 @@
 package com.kotlinswe.waterfountainrater.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.annotation.Nonnull
 import jakarta.persistence.*
 
@@ -12,6 +13,7 @@ data class WaterStation(
     val description: String,
 
     @OneToMany(mappedBy = "station", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JsonManagedReference
     val fountains: List<WaterFountain> = mutableListOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,5 +1,6 @@
 package com.kotlinswe.waterfountainrater.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.annotation.Nonnull
 import jakarta.persistence.*
 import java.time.Instant
@@ -16,6 +17,7 @@ data class WaterFountain(
     val status: FountainStatus = FountainStatus.WORKING,
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     @JoinColumn(name = "station_id")
     val station: WaterStation,
 

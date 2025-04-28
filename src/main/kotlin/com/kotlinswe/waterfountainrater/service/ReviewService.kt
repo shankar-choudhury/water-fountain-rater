@@ -71,4 +71,7 @@ class ReviewService(
 
     suspend fun getReviewsByWaterFountain(fountainId: Long): List<WaterFountainReview> =
         reviewRepository.findAllByWaterFountainId(fountainId)
+
+    suspend fun getReviewsByWaterFountainCt(fountainId: Long): List<WaterFountainReviewDto> =
+        reviewRepository.findAllByWaterFountainId(fountainId).map { toDto(it) }
 }
