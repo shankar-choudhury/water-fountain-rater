@@ -35,7 +35,7 @@ class FountainCommands(
         println(formatDetails(fountain))
     }
 
-    suspend fun rateFountain(args: String, scanner: Scanner) = coroutineScope {
+    suspend fun rateFountain(args: String, reviewText: String?) = coroutineScope {
         val parts = args.split("\\s+".toRegex())
         if (parts.size < 6) {
             println("Usage: rate [id] [taste] [flow] [temp] [amb] [usability]")
@@ -50,8 +50,10 @@ class FountainCommands(
             val amb = parts[4].toDouble()
             val usability = parts[5].toDouble()
 
-            print("Enter a short review: ")
-            val reviewText = scanner.nextLine().trim()
+            if (reviewText.isNullOrBlank()) {
+                println("❌ A short review is required!")
+                return@coroutineScope
+            }
 
             val reviewDto = WaterFountainReviewDto(
                 fountainId = fountainId,

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Water Fountain Rater - Admin Terminal</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        #terminal {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            border: 1px solid #444;
+            padding: 15px;
+            height: 70vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+        #command-form {
+            display: flex;
+        }
+        #command-input {
+            flex-grow: 1;
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+            border: 1px solid #444;
+            padding: 8px;
+            font-family: monospace;
+        }
+        #command-input:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+        .title {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1 class="title">🚰 Water Fountain Rater - Admin Terminal</h1>
+
+<div id="terminal" th:text="${output}"></div>
+
+<form id="command-form" th:action="@{/admin/terminal/execute}" method="post">
+    <input type="text" id="command-input" name="command" autofocus
+           th:value="${command}" placeholder="Enter command...">
+</form>
+
+<script th:inline="javascript">
+    const terminal = document.getElementById('terminal');
+    const commandInput = document.getElementById('command-input');
+    const commandForm = document.getElementById('command-form');
+
+    terminal.scrollTop = terminal.scrollHeight;
+    commandInput.focus();
+
+    const commandHistory = [];
+    let historyIndex = -1;
+
+    commandInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const cmd = commandInput.value.trim();
+            if (cmd) {
+                commandHistory.push(cmd);
+                historyIndex = commandHistory.length;
+
+                // Submit via fetch to prevent page reload
+                submitCommand(cmd);
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (commandHistory.length > 0 && historyIndex > 0) {
+                historyIndex--;
+                commandInput.value = commandHistory[historyIndex];
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                commandInput.value = commandHistory[historyIndex];
+            } else {
+                historyIndex = commandHistory.length;
+                commandInput.value = '';
+            }
+        }
+    });
+
+    function submitCommand(cmd) {
+        const formData = new FormData();
+        formData.append('command', cmd);
+
+        fetch('/admin/terminal/execute', {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        }).then(() => {
+            commandInput.value = '';
+            refreshTerminal();
+        });
+    }
+
+    function refreshTerminal() {
+        fetch('/admin/terminal/output')
+            .then(response => response.text())
+            .then(data => {
+                terminal.innerText = data;
+                terminal.scrollTop = terminal.scrollHeight;
+            });
+    }
+
+    // Poll every second for updates
+    setInterval(refreshTerminal, 1000);
+</script>
+</body>
+</html>

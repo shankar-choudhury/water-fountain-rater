@@ -23,7 +23,7 @@ class ReportCommands(
         )
     }
 
-    suspend fun submitReport(args: String, scanner: Scanner) = coroutineScope {
+    suspend fun submitReport(args: String, reportContents: String?) = coroutineScope {
         val parts = args.split(" ")
         if (parts.size < 2) {
             println("Usage: report [fountainId] [issue]")
@@ -42,8 +42,10 @@ class ReportCommands(
             else -> WaterFountain.FountainStatus.NONE
         }
 
-        print("Enter report details: ")
-        val reportContents = scanner.nextLine()
+        if (reportContents.isNullOrBlank()) {
+            println("❌ Report contents are required!")
+            return@coroutineScope
+        }
 
         try {
             val report = reportService.submitReport(fountainId, status, reportContents)
@@ -52,4 +54,6 @@ class ReportCommands(
             println("❌ Failed to submit report: ${e.message}")
         }
     }
+
+
 }

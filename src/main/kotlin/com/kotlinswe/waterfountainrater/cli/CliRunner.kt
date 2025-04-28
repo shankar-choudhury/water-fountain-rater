@@ -21,6 +21,7 @@ class CliRunner(
 
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext = Dispatchers.Default + job
+
     private val scanner = Scanner(System.`in`)
 
     override fun run(vararg args: String?) {
@@ -55,11 +56,20 @@ class CliRunner(
             "buildings" -> buildingCommands.listBuildings(args)
             "stations" -> stationCommands.listStations(args)
             "fountains" -> fountainCommands.listFountains(args)
-            "rate" -> fountainCommands.rateFountain(args, scanner)
+            "rate" -> {
+                // Asking for a review text
+                println("Please provide a short review for the fountain:")
+                val reviewText = scanner.nextLine().trim()
+                fountainCommands.rateFountain(args, reviewText)
+            }
             "top" -> fountainCommands.showTopRated(args)
             "near" -> searchCommands.findNearby(args)
             "details" -> fountainCommands.showFountainDetails(args)
-            "report" -> reportCommands.submitReport(args, scanner)
+            "report" -> {
+                println("Please provide a short description for the report")
+                val reviewText = scanner.nextLine().trim()
+                reportCommands.submitReport(args, reviewText)
+            }
             "search" -> searchCommands.searchFountains(args)
             "stats" -> statsCommands.showStats(args)
             "reviews" -> reviewCommands.listReviews(args)
@@ -74,6 +84,19 @@ class CliRunner(
         job.cancel("CLI shutdown")
         scanner.close()
         println("\n👋 Goodbye!")
+    }
+
+    fun executeCommand(input: String) {
+        println("DEBUG - Raw input: '$input'")
+        val (command, args) = parseInput(input)
+        println("DEBUG - Parsed command: '$command', args: '$args'")
+        runBlocking {
+            handleCommand(command, args)
+        }
+    }
+
+    suspend fun rateFountain(command: String, reviewText: String?) {
+        return fountainCommands.rateFountain(command, reviewText)
     }
 
     private fun printHelp() {
