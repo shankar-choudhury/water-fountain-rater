@@ -23,8 +23,9 @@ class SearchService(
         latitude: Double,
         longitude: Double,
         radius: Double
-    ): List<Building> =
+    ): List<BuildingSearchResponseDto> =
         buildingRepository.findByLocation(latitude, longitude, radius)
+            .map { toDto(it) }
 
     @Transactional
     suspend fun findNearbyBuildingsWithFountains(

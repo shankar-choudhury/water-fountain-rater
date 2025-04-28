@@ -1,6 +1,7 @@
 package com.kotlinswe.waterfountainrater.controller
 
 import com.kotlinswe.waterfountainrater.dto.review.WaterFountainReviewDto
+import com.kotlinswe.waterfountainrater.dto.waterfountain.WaterFountainDto
 import com.kotlinswe.waterfountainrater.model.WaterFountain
 import com.kotlinswe.waterfountainrater.model.WaterFountainReview
 import com.kotlinswe.waterfountainrater.service.ReviewService
@@ -23,9 +24,9 @@ class ReviewController(
 
     @GetMapping("/{fountainId}")
     suspend fun getReviews(@PathVariable fountainId: Long): List<WaterFountainReview> =
-        reviewService.getReviews(fountainId)
+        reviewService.getReviewsByWaterFountain(fountainId)
 
     @GetMapping("/top-rated/{topX}")
-    suspend fun getTopRated(@PathVariable topX: Int): List<WaterFountain> =
+    suspend fun getTopRated(@PathVariable topX: Int): List<WaterFountainDto> =
         reviewService.getTopRatedFountains(topX)
 }

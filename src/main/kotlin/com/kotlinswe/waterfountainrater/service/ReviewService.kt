@@ -1,6 +1,7 @@
 package com.kotlinswe.waterfountainrater.service
 
 import com.kotlinswe.waterfountainrater.dto.review.WaterFountainReviewDto
+import com.kotlinswe.waterfountainrater.dto.waterfountain.WaterFountainDto
 import com.kotlinswe.waterfountainrater.repository.*
 import com.kotlinswe.waterfountainrater.model.WaterFountain
 import com.kotlinswe.waterfountainrater.model.WaterFountainReview
@@ -53,8 +54,8 @@ class ReviewService(
     }
 
     @Transactional
-    suspend fun getTopRatedFountains(limit: Int = 10): List<WaterFountain> =
-        fountainRepository.findTopRated(PageRequest.of(0, limit)).content
+    suspend fun getTopRatedFountains(limit: Int = 10): List<WaterFountainDto> =
+        fountainRepository.findTopRated(PageRequest.of(0, limit)).content.map { toDto(it) }
 
     suspend fun getFountainRatingStats(fountainId: Long): Map<String, Any> {
         return mapOf(
@@ -64,6 +65,10 @@ class ReviewService(
         )
     }
 
-    suspend fun getReviews(fountainId: Long): List<WaterFountainReview> =
+    suspend fun getAllReviews(): List<WaterFountainReview> {
+        return reviewRepository.findAll()
+    }
+
+    suspend fun getReviewsByWaterFountain(fountainId: Long): List<WaterFountainReview> =
         reviewRepository.findAllByWaterFountainId(fountainId)
 }
