@@ -52,6 +52,7 @@ class ReviewService(
         )
     }
 
+    @Transactional
     suspend fun getTopRatedFountains(limit: Int = 10): List<WaterFountain> =
         fountainRepository.findTopRated(PageRequest.of(0, limit)).content
 

@@ -1,9 +1,12 @@
 package com.kotlinswe.waterfountainrater.cli
 
 import com.kotlinswe.waterfountainrater.dto.review.WaterFountainReviewDto
+import com.kotlinswe.waterfountainrater.dto.waterfountain.WaterFountainDto
+import com.kotlinswe.waterfountainrater.dto.waterstation.WaterStationDto
 import com.kotlinswe.waterfountainrater.model.WaterFountain
 import com.kotlinswe.waterfountainrater.service.*
 import com.kotlinswe.waterfountainrater.util.DistanceCalculator
+import jakarta.transaction.Transactional
 import kotlinx.coroutines.*
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
@@ -42,7 +45,7 @@ class CliRunner(
                         val (command, args) = parseInput(input)
                         handleCommand(command, args)
                     } catch (e: Exception) {
-                        println("⚠️ Error: ${e.message?.take(200)}")
+                        println("⚠️ Error: ${e.message}")
                     }
                 }
             } finally {
@@ -56,7 +59,7 @@ class CliRunner(
     private suspend fun handleCommand(command: String, args: String) {
         when (command.lowercase()) {
             "help" -> printHelp()
-            "list" -> buildingService.listAll().forEach { println("🏢 ${it.name} (ID: ${it.id})") }
+            "buildings" -> listBuildings(args)
             "stations" -> listStations(args)
             "fountains" -> listFountains(args)
             "rate" -> rateFountain(args)
@@ -123,28 +126,71 @@ class CliRunner(
         )
     }
 
+    private suspend fun listBuildings(args: String) {
+        buildingService.listAll().forEach { println("🏢 ${it.name} (ID: ${it.id})") }
+    }
+
     private suspend fun listStations(args: String) {
-        val buildingId = args.toLongOrNull() ?: run {
-            println("Usage: stations [buildingId]")
-            return
-        }
-        stationService.listAll()
-            .filter { it.buildingId == buildingId }
-            .forEach { station ->
-                println("🚰 Station ${station.id}: Floor ${station.floor}, ${station.description}")
-            }
+        listEntities(
+            args = args,
+            listAll = { stationService.listAll() },
+            findById = { buildingId -> stationService.findByBuildingId(buildingId) },
+            formatAll = ::formatAllStations,
+            formatById = ::formatStationById,
+            usageMessage = "Usage: stations [buildingId]  (e.g. 'stations 1' for Building 1)"
+        )
     }
 
     private suspend fun listFountains(args: String) {
-        val stationId = args.toLongOrNull() ?: run {
-            println("Usage: fountains [stationId]")
-            return
-        }
-        fountainService.listAll()
-            .filter { it.stationId == stationId }
-            .forEach { fountain ->
-                println("💧 Fountain ${fountain.id}: ${fountain.type} (★ ${"%.1f".format(fountain.overallRating)})")
+        listEntities(
+            args = args,
+            listAll = { fountainService.listAll() },
+            findById = { stationId -> fountainService.findByStationId(stationId) },
+            formatAll = ::formatAllFountains,
+            formatById = ::formatFountainById,
+            usageMessage = "Usage: fountains [stationId]  (e.g. 'fountains 1' for Station 1)"
+        )
+    }
+
+    private suspend fun <T> listEntities(
+        args: String,
+        listAll: suspend () -> List<T>,
+        findById: suspend (Long) -> List<T>,
+        formatAll: (T) -> String,
+        formatById: (T) -> String,
+        usageMessage: String
+    ) {
+        if (args.isBlank()) {
+            listAll().forEach { entity ->
+                println(formatAll(entity))
             }
+        } else {
+            val id = args.toLongOrNull() ?: run {
+                println(usageMessage)
+                return
+            }
+            findById(id).forEach { entity ->
+                println(formatById(entity))
+            }
+        }
+    }
+
+    // Station formatting
+    private fun formatAllStations(station: WaterStationDto): String {
+        return "🚰 Station ${station.id}: Building ${station.buildingId} Floor ${station.floor}, ${station.description}"
+    }
+
+    private fun formatStationById(station: WaterStationDto): String {
+        return "🚰 Station ${station.id}: Floor ${station.floor}, ${station.description}"
+    }
+
+    // Fountain formatting
+    private fun formatAllFountains(fountain: WaterFountainDto): String {
+        return "💧 Fountain ${fountain.id}: Station ${fountain.stationId} Type ${fountain.type}, ★ ${"%.1f".format(fountain.overallRating)}"
+    }
+
+    private fun formatFountainById(fountain: WaterFountainDto): String {
+        return "💧 Fountain ${fountain.id}: Type ${fountain.type}, ★ ${"%.1f".format(fountain.overallRating)}"
     }
 
     private suspend fun showFountainDetails(args: String) {

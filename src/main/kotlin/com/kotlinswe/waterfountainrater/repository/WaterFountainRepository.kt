@@ -19,24 +19,32 @@ interface WaterFountainRepository : JpaRepository<WaterFountain, Long> {
 
     // For stats
     @Query("""
-        SELECT wf FROM WaterFountain wf 
-        LEFT JOIN WaterFountainReview r ON r.waterFountain = wf
-        GROUP BY wf
-        ORDER BY COALESCE(AVG(
-            (r.tasteRating + r.flowRating + r.temperatureRating + 
-             r.ambienceRating + r.usabilityRating)/5.0
-        ), 0) DESC
+        SELECT wf FROM WaterFountain wf
+        LEFT JOIN FETCH wf.reviews
+        WHERE wf.id IN (
+            SELECT wf2.id FROM WaterFountain wf2
+            LEFT JOIN wf2.reviews r
+            GROUP BY wf2.id
+            ORDER BY COALESCE(AVG(
+                (r.tasteRating + r.flowRating + r.temperatureRating + 
+                 r.ambienceRating + r.usabilityRating)/5.0
+            ), 0) DESC
+        )
     """)
     fun findTopRated(pageable: Pageable): Page<WaterFountain>
 
     @Query("""
-        SELECT wf FROM WaterFountain wf 
-        LEFT JOIN WaterFountainReview r ON r.waterFountain = wf
-        GROUP BY wf
-        ORDER BY COALESCE(AVG(
-            (r.tasteRating + r.flowRating + r.temperatureRating + 
-             r.ambienceRating + r.usabilityRating)/5.0
-        ), 0) ASC
+        SELECT wf FROM WaterFountain wf
+        LEFT JOIN FETCH wf.reviews
+        WHERE wf.id IN (
+            SELECT wf2.id FROM WaterFountain wf2
+            LEFT JOIN wf2.reviews r
+            GROUP BY wf2.id
+            ORDER BY COALESCE(AVG(
+                (r.tasteRating + r.flowRating + r.temperatureRating + 
+                 r.ambienceRating + r.usabilityRating)/5.0
+            ), 0) ASC
+        )
     """)
     fun findWorstRated(pageable: Pageable): Page<WaterFountain>
 }
