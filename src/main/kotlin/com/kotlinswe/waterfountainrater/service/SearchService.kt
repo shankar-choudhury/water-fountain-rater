@@ -43,6 +43,7 @@ class SearchService(
             .map { toDto(it) }
             .toList()
 
+    @Transactional
     suspend fun searchFountains(query: String): List<WaterFountainDto> =
         fountainRepository.searchFountains(query).map { toDto(it) }
 

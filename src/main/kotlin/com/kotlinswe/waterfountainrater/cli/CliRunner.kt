@@ -543,10 +543,9 @@ class CliRunner(
             "details" -> fountainCommands.showFountainDetails(args)
             "report" -> reportCommands.submitReport(args, scanner)
             "search" -> searchCommands.searchFountains(args)
-            "stats" -> statsCommands.showStats()
+            "stats" -> statsCommands.showStats(args)
             "reviews" -> reviewCommands.listReviews(args)
             "reports" -> reportCommands.listReports(args)
-            "fountain stats" -> statsCommands.showFountainStats(args)
             "nearby with fountains" -> searchCommands.findNearbyWithFountains(args)
             "quit" -> shutdown()
             else -> println("❌ Unknown command. Type 'help' for options.")
@@ -562,8 +561,44 @@ class CliRunner(
     private fun printHelp() {
         println(
             """
-        📋 Available Commands:
-        [Same help text as original]
+            📋 Available Commands:
+    
+            BUILDINGS:
+              buildings          - List all buildings
+              near [lat] [lon]   - Find buildings near location
+    
+            STATIONS:
+              stations           - List all stations
+              stations [buildingId] - List stations in a specific building
+    
+            FOUNTAINS:
+              fountains          - List all fountains
+              fountains [stationId] - List fountains in a specific station
+              details [id]       - Show fountain details
+              rate [id] [taste] [flow] [temp] [amb] [usability] - Rate a fountain
+              top [limit]        - Show top-rated fountains (default: 5)
+              search [query]     - Search fountains by type/description
+    
+            REVIEWS:
+              reviews            - List all reviews
+              reviews [fountainId] - List reviews for a specific fountain
+    
+            REPORTS:
+              reports            - List all reports
+              reports [fountainId] - List reports for a specific fountain
+              report [id] [issue] - Report a fountain issue (broken/leaking/dirty)
+    
+            STATISTICS:
+              stats              - Show system statistics
+              stats [id]        - Show statistics for a specific fountain
+    
+            LOCATION:
+              near [lat] [lon]   - Find buildings near location
+              nearbywithfountains [lat] [lon] - Find buildings with fountains nearby
+    
+            SYSTEM:
+              help               - Show this help
+              exit               - Exit the application
         """.trimIndent()
         )
     }

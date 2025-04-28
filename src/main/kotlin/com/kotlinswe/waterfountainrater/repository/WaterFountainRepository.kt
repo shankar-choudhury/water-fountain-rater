@@ -13,8 +13,12 @@ interface WaterFountainRepository : JpaRepository<WaterFountain, Long> {
     override fun findById(id: Long): Optional<WaterFountain>
     fun findByStationId(stationId: Long): List<WaterFountain>
 
-    @Query("SELECT wf FROM WaterFountain wf WHERE " +
-            "wf.type LIKE %:query% OR wf.station.description LIKE %:query%")
+    @Query("""
+        SELECT wf FROM WaterFountain wf 
+        JOIN wf.station s
+        WHERE LOWER(CAST(wf.type AS string)) LIKE LOWER(CONCAT('%', :query, '%'))
+           OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
+    """)
     fun searchFountains(@Param("query") query: String): List<WaterFountain>
 
     // For stats
