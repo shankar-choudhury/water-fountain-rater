@@ -10,59 +10,40 @@
 src/main/kotlin/com/kotlinswe/waterfountainrater
 ├── WaterfountainraterApplication.kt
 ├── cli
-│   └── CliRunner.kt
+│ ├── CliConfig.kt # CLI Spring configuration
+│ ├── CliRunner.kt # Main CLI entry point
+│ ├── command/ # All CLI command implementations
+│ ├── formatter/ # Output formatting classes
+│ └── util/ # CLI utility classes
 ├── config
-│   └── DataInitializer.kt
-├── model
-│   ├── Building.kt
-│   ├── WaterFountain.kt
-│   └── WaterStation.kt
-├── repository
-│   ├── BuildingRepository.kt
-│   ├── WaterFountainRepository.kt
-│   └── WaterStationRepository.kt
-├── service
-│   ├── RatingService.kt
-│   └── SearchService.kt
-└── util
-    └── DistanceCalculator.kt
+│ └── DataInitializer.kt # Database initialization
+├── controller/ # Web controllers
+├── dto/ # Data transfer objects
+├── model/ # Domain models
+├── repository/ # Data repositories
+├── service/ # Business logic services
+└── util/ # Utility classes
 ```
 
 ---
 
-## 🧾 Class Descriptions
+## 🧾 Key Components
 
-### `Building.kt`
-Represents a physical building on campus with name, latitude, and longitude. Each building can contain multiple `WaterStation` entries.
+### CLI Components
+- **CliRunner**: Main CLI entry point with command routing
+- **Command Classes**: Handlers for each command group (Building, Fountain, Report, Review, Station, Stats)
+- **Formatters**: Specialized output formatting for each entity type
+- **InputParser**: Utility for parsing and validating user input
 
-### `WaterStation.kt`
-A water station located on a specific floor and location in a building. It can contain multiple `WaterFountain` instances.
+### Core Components
+- **Models**: Building, WaterStation, WaterFountain, WaterFountainReview, WaterFountainReport
+- **Repositories**: JPA repositories for all entities with custom queries
+- **Services**: Business logic layer for all operations
 
-### `WaterFountain.kt`
-Represents a specific water fountain type (UPPER, LOWER, BOTTLE_FILLER) with individual ratings: taste, flow, temperature, ambience, and usability. It calculates an `overallRating` based on these.
-
-### `BuildingRepository.kt`, `WaterStationRepository.kt`, `WaterFountainRepository.kt`
-Spring Data JPA repositories for CRUD operations and custom queries such as proximity searches and entity lookups.
-
-### `RatingService.kt`
-Handles fountain rating logic. Allows rating updates and retrieval of top-rated fountains.
-
-### `SearchService.kt`
-Provides search functionality to find buildings near a geographic location and fetch water stations for a building.
-
-### `DistanceCalculator.kt`
-Calculates distance (in meters) between two geographic points using the Haversine formula.
-
-### `DataInitializer.kt`
-Populates the database with sample buildings, stations, and fountains when the application is run with an empty dataset.
-
-### `CliRunner.kt`
-Main entry point for the command-line interface. Provides interactive features such as:
-- Listing buildings, stations, and fountains
-- Rating fountains
-- Viewing top-rated fountains
-- Finding buildings near a given location
-- Displaying detailed fountain info
+### Web Components
+- **Controllers**: REST endpoints for web interface
+- **DTOs**: Data transfer objects for API requests/responses
+- **Web Interface**: Accessible at `/terminal` after startup
 
 ---
 
@@ -80,7 +61,9 @@ cd water-fountain-rater
 ```
 
 ### 3. **Use the CLI**
-Once the app launches, you'll see the CLI prompt:
+CLI: Interact directly with the command prompt in your terminal
+
+Web: Open http://localhost:8080/admin/terminal in your browser
 ```bash
 🚰 Water Fountain Rater CLI
 Type 'help' for commands, 'exit' to quit
@@ -90,22 +73,40 @@ Type 'help' for commands, 'exit' to quit
 ### 4. **Available Commands**
 ```bash
 BUILDINGS:
-  list                        - List all buildings
-  near [lat] [lon]           - Find nearby buildings
+  buildings list                     - List all buildings
+  buildings near [lat] [lon]        - Find nearby buildings
+  buildings info [id]               - Get building details
 
 STATIONS:
-  stations [buildingId]      - List stations in a building
+  stations list [buildingId]        - List stations in a building
+  stations info [id]                - Get station details
 
 FOUNTAINS:
-  fountains [stationId]      - List fountains in a station
-  rate [id] [taste] [flow] [temp] [amb] [usability] - Rate a fountain
-  top [limit]                - Show top-rated fountains (default: 5)
-  details [id]               - Show detailed info for a fountain
+  fountains list [stationId]        - List fountains in a station
+  fountains rate [id] [ratings...] - Rate a fountain
+  fountains top [limit]             - Show top-rated fountains
+  fountains info [id]               - Show fountain details
+
+REPORTS:
+  reports create [fountainId] [type] - Create a maintenance report
+  reports list [status]             - List reports (all or by status)
+
+REVIEWS:
+  reviews list [fountainId]         - List reviews for a fountain
+  reviews info [id]                 - Get review details
+
+STATS:
+  stats buildings                   - Show building statistics
+  stats fountains                   - Show fountain statistics
 
 SYSTEM:
-  help                       - Show help message
-  exit                       - Exit CLI
+  help                              - Show help message
+  exit                              - Exit CLI
 ```
+## Web Endpoints
+REST API available at /api/ endpoints (see controller class for URI links)
+Interactive web terminal at /admin/terminal
+Visit http://localhost:8080/terminal for interactive web interface
 
 ---
 
@@ -123,10 +124,13 @@ SYSTEM:
 ---
 
 ## 🛠 Tech Stack
-- Kotlin
-- Spring Boot
+- Kotlin 1.8+
+- Spring Boot 3.1+
 - Spring Data JPA
-- H2 In-Memory Database
+- H2 Database (in-memory)
+- Gradle
+- Picocli (for CLI)
+- Thymeleaf (for web views)
 
 ---
 
@@ -138,7 +142,7 @@ SYSTEM:
 ---
 
 ## 🤝 Contributors
-Made with ❤️ by KotlinSWE team.
+Made with love by Ryan Pitasky and Shankar Choudhury.
 
 ---
 
